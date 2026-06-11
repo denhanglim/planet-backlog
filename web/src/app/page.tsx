@@ -191,10 +191,12 @@ export default function Home() {
                   <dt className="readout text-[11px] uppercase tracking-[0.2em] text-ink-faint">
                     {s.label}
                   </dt>
-                  <dd className="readout mt-3 text-5xl font-medium text-phosphor">
-                    {s.value}
+                  <dd>
+                    <span className="readout mt-3 block text-5xl font-medium text-phosphor">
+                      {s.value}
+                    </span>
+                    <span className="mt-2 block text-xs text-ink-dim">{s.sub}</span>
                   </dd>
-                  <p className="mt-2 text-xs text-ink-dim">{s.sub}</p>
                 </div>
               ))}
             </dl>

@@ -25,8 +25,10 @@ function Cell({
   return (
     <div className="bg-void p-6">
       <dt className="readout text-[10px] uppercase tracking-[0.2em] text-ink-faint">{label}</dt>
-      <dd className={`readout mt-2 text-2xl font-medium ${valueCls}`}>{value}</dd>
-      {sub && <p className="mt-1.5 text-xs leading-relaxed text-ink-dim">{sub}</p>}
+      <dd>
+        <span className={`readout mt-2 block text-2xl font-medium ${valueCls}`}>{value}</span>
+        {sub && <span className="mt-1.5 block text-xs leading-relaxed text-ink-dim">{sub}</span>}
+      </dd>
     </div>
   );
 }
@@ -203,7 +205,7 @@ export function DiagnosticsGrid({ c }: { c: Candidate }) {
           <Cell
             label="Period lower bound"
             value={`> ${fmt.num(det.min_period_days, 1)} d`}
-            sub="single event — only one transit observed, so the true period exceeds the data baseline"
+            sub="single event — the true period exceeds the distance from the event to the nearest data edge"
           />
         )}
       </dl>

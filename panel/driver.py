@@ -46,7 +46,14 @@ def call_agent(prompt: str, schema: dict, model: str = DEFAULT_MODEL,
 
 
 def _invoke_claude(prompt: str, model: str) -> str:
-    cmd = ["claude", "-p", "--output-format", "json", "--model", model]
+    # --strict-mcp-config with an empty config stops the CLI from booting the
+    # user's MCP servers: the panel needs no tools, and each server boot costs
+    # tens of seconds and leaks child processes across 80+ calls.
+    cmd = [
+        "claude", "-p", "--output-format", "json", "--model", model,
+        "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
+        "--disallowed-tools", "*",
+    ]
     try:
         proc = subprocess.run(
             cmd, input=prompt, capture_output=True, text=True, timeout=CALL_TIMEOUT_S,

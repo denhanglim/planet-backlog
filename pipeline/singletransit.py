@@ -32,7 +32,7 @@ class SingleTransitEvent:
     depth_ppm: float
     snr: float
     n_points_in_event: int
-    min_period_days: float       # event is single -> period > baseline (lower bound only)
+    min_period_days: float       # P > max distance from event to a data edge (lower bound)
     quality_flag_fraction: float
     near_gap_or_edge: bool
 
@@ -130,13 +130,17 @@ def find_single_transits(lcd_flat: LightCurveData,
             seg_valid = np.isfinite(seg)
             depth_ppm = float(-np.nanmedian(seg[seg_valid]) * 1e6) if seg_valid.any() else np.nan
             qfrac = float(np.nanmean(q[window])) if np.isfinite(q[window]).any() else 0.0
+            # seeing exactly ONE transit constrains P > max distance from the event
+            # to a data edge (NOT the full baseline — an event mid-sector is
+            # consistent with periods down to ~baseline/2)
+            min_period = max(float(t[i] - t[0]), float(t[-1] - t[i]))
             events.append(SingleTransitEvent(
                 t0_btjd=float(t[i]),
                 duration_hours=float(dur_h),
                 depth_ppm=depth_ppm,
                 snr=snr,
                 n_points_in_event=int(seg_valid.sum()),
-                min_period_days=float(t[-1] - t[0]),
+                min_period_days=min_period,
                 quality_flag_fraction=qfrac,
                 near_gap_or_edge=bool(gap_or_edge[i]),
             ))

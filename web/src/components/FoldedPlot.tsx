@@ -222,7 +222,7 @@ export function FoldedPlot(props: FoldedPlotProps) {
             ? `Folded light curve · P = ${props.periodDays?.toFixed(5) ?? "—"} d`
             : "Event window · hours from event center"}
         </span>
-        <span className="readout text-[11px] text-ink-dim" aria-live="polite">
+        <span className="readout text-[11px] text-ink-dim">
           {hover
             ? `${mode === "folded" ? "phase" : "t"} ${hover.x.toFixed(4)} · flux ${hover.y.toFixed(5)} · ${depthPpm! >= 0 ? `${depthPpm} ppm below baseline` : "above baseline"}`
             : "hover for readout · scroll to zoom · double-click to reset"}

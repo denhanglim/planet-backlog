@@ -194,8 +194,10 @@ export default function TrustPage() {
                 ].map(([k, v, sub]) => (
                   <div key={k} className="bg-void p-6">
                     <dt className="text-[10px] uppercase tracking-[0.2em] text-ink-faint">{k}</dt>
-                    <dd className="mt-2 text-3xl text-ink">{v}</dd>
-                    <p className="mt-1 text-xs normal-case tracking-normal text-ink-dim">{sub}</p>
+                    <dd>
+                      <span className="mt-2 block text-3xl text-ink">{v}</span>
+                      <span className="mt-1 block text-xs normal-case tracking-normal text-ink-dim">{sub}</span>
+                    </dd>
                   </div>
                 ))}
               </dl>

@@ -1,12 +1,13 @@
 """Injection-recovery: the completeness + reliability measurement.
 
 Procedure (per real host light curve):
-  1. Mask the host's known planet using the ephemeris the pipeline itself recovered
-     (computed, not hand-typed). Hosts whose planet wasn't recovered are excluded.
-  2. Inject a synthetic limb-darkened-trapezoid transit at a random (period, depth)
+  1. Mask the host's known planet (and its secondary-eclipse window) out of the RAW
+     flux, using the ephemeris the pipeline itself recovered (computed, not hand-typed).
+  2. Inject a synthetic trapezoid transit into the raw flux at a random (period, depth)
      drawn from a log-uniform grid, duration from circular-orbit geometry given the
      TIC stellar radius/mass.
-  3. Run the production TLS search blind.
+  3. Run the FULL production chain blind: detrend (no ephemeris mask), then TLS —
+     so the measured completeness includes detrending losses, exactly as in production.
   4. Recovered = SDE >= threshold AND detected period matches injected (incl. harmonics).
 
 Reliability comes from null trials: the same masked light curves with whole 1-day
@@ -60,29 +61,33 @@ def inject_transit(time: np.ndarray, flux: np.ndarray, period: float, t0: float,
 
 
 def prepare_host(host: str) -> tuple[LightCurveData, dict] | None:
-    """Fetch + detrend a host and mask its own recovered planet. None if unusable."""
+    """Fetch a host and mask its own recovered planet OUT OF THE RAW FLUX.
+
+    Returns the un-detrended light curve: injections must go into raw flux and then
+    pass through the full production detrend+search chain, otherwise the measured
+    completeness excludes detrending losses and overestimates the real pipeline.
+    """
     lcd = fetch_lightcurve(host)
     if lcd is None:
         return None
     star = stellar_params(lcd.tic_id)
-    flat = detrend(lcd)
-    det = run_tls(flat, star=star)
+    det = run_tls(detrend(lcd), star=star)
     if det is None or det.sde is None or det.sde < config.DETECTION_SDE_THRESHOLD:
         # no in-data planet to mask; usable as-is (quiet host)
-        return flat, star
+        return lcd, star
     dur_days = det.duration_hours / 24.0
     # mask the transit AND the secondary-eclipse window (phase 0.5) — hot Jupiters
     # have detectable secondaries that would otherwise poison the null trials
     mask = (
-        transit_mask(flat.time, det.period_days, det.t0_btjd, dur_days, pad=2.0)
-        | transit_mask(flat.time, det.period_days, det.t0_btjd + det.period_days / 2.0,
+        transit_mask(lcd.time, det.period_days, det.t0_btjd, dur_days, pad=2.0)
+        | transit_mask(lcd.time, det.period_days, det.t0_btjd + det.period_days / 2.0,
                        dur_days, pad=2.0)
     )
     clean = LightCurveData(
-        tic_id=flat.tic_id, sector=flat.sector,
-        time=flat.time[~mask], flux=flat.flux[~mask],
-        flux_err=flat.flux_err[~mask], quality=flat.quality[~mask],
-        meta=flat.meta,
+        tic_id=lcd.tic_id, sector=lcd.sector,
+        time=lcd.time[~mask], flux=lcd.flux[~mask],
+        flux_err=lcd.flux_err[~mask], quality=lcd.quality[~mask],
+        meta=lcd.meta,
     )
     return clean, star
 
@@ -117,7 +122,9 @@ def run(hosts: list[str] | None = None, n_injections_per_host: int = 24,
                 flux=inject_transit(clean.time, clean.flux, period, t0, depth_ppm / 1e6, dur),
                 flux_err=clean.flux_err, quality=clean.quality, meta=clean.meta,
             )
-            det = run_tls(injected, star=star, fast=True)
+            # full production chain: detrend (no mask — the search doesn't know the
+            # ephemeris in production) and THEN search
+            det = run_tls(detrend(injected), star=star, fast=True)
             recovered = bool(
                 det is not None and det.sde is not None
                 and det.sde >= config.DETECTION_SDE_THRESHOLD
@@ -142,7 +149,7 @@ def run(hosts: list[str] | None = None, n_injections_per_host: int = 24,
                 flux_err=clean.flux_err,
                 quality=clean.quality, meta=clean.meta,
             )
-            det = run_tls(null, star=star, fast=True)
+            det = run_tls(detrend(null), star=star, fast=True)
             false_alarm = bool(det is not None and det.sde is not None
                                and det.sde >= config.DETECTION_SDE_THRESHOLD)
             null_trials.append({

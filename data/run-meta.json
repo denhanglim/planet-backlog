@@ -18,7 +18,7 @@
   "calibration_targets": 8,
   "blind_targets": 40,
   "detections": 12,
-  "panel_survivors": null
+  "panel_survivors": 0
  },
  "honesty_notes": [
   "Candidates are NOT confirmed planets; confirmation requires RV follow-up.",

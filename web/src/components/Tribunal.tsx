@@ -118,6 +118,17 @@ export function Tribunal({ panel }: { panel: Panel }) {
       </ol>
 
       {/* Judge */}
+      {(!panel.judge || panel.judge.error) && (
+        <div className="mt-px border border-blood/30 bg-void-2 p-8">
+          <h3 className="display text-xl font-semibold text-ink">The Judge&apos;s synthesis</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-blood">
+            The judge agent failed to run for this candidate
+            {panel.judge?.error ? ` (${panel.judge.error})` : ""}. The survival status
+            shown comes from the mechanical rule over the skeptic verdicts alone —
+            reported honestly rather than papered over.
+          </p>
+        </div>
+      )}
       {panel.judge && !panel.judge.error && (
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 18 }}

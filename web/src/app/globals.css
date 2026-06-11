@@ -11,7 +11,7 @@
   --void-3: #101714;          /* hover / inset */
   --ink: #e8ece9;             /* primary text — 15.6:1 on void */
   --ink-dim: #a8b3ac;         /* secondary text — 7.5:1 */
-  --ink-faint: #6d7873;       /* tertiary — 4.6:1, AA for large/mono only */
+  --ink-faint: #7c8881;       /* tertiary — 5.5:1 on void, AA at all sizes */
   --phosphor: #5ef2c8;        /* signal / survived / interactive */
   --phosphor-dim: #2c8a72;
   --amber: #ffb24d;           /* kills / cautions */

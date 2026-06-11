@@ -139,8 +139,10 @@ def process_target(target: str | int, catalogs: Catalogs, sector: int | None = N
             "min_period_days": ev.min_period_days,
         }
         validation = heuristic_fpp({"sde": ev.snr}, diag)
-        validation["note"] = ("Single-transit event: period unconstrained (> baseline). "
-                              + validation["note"])
+        validation["note"] = (
+            f"Single-transit event: period > {ev.min_period_days:.1f} d "
+            "(max distance from the event to a data edge). "
+            + validation["note"])
         xmatch = catalogs.crossmatch(lcd.tic_id, None)
         window = _event_window(flat_for_st, ev.t0_btjd, dur_days)
         candidates.append(sanitize(make_candidate(

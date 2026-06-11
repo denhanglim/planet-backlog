@@ -5438,7 +5438,148 @@
     1.0
    ]
   },
-  "panel": null,
+  "panel": {
+   "panel_version": "1.0.0",
+   "model": "sonnet",
+   "ran_utc": "2026-06-11T16:32:23.532451+00:00",
+   "skeptics": [
+    {
+     "skeptic": "binary",
+     "verdict": "failed_to_kill",
+     "lethality": "serious-concern",
+     "reasoning": "Primary concern: secondary eclipse detected at 8.277 sigma significance with depth 460.25 ppm. For a genuine planetary transit, thermal emission secondaries are typically << 100 ppm; 460 ppm at a 0.942-day period is elevated and pushes toward a stellar companion explanation. However, the secondary depth (460 ppm) is only 4.4% of the primary depth (10407.77 ppm) \u2014 a classic unresolved eclipsing binary would produce a secondary comparable in magnitude to the primary, not 22x shallower. This is more consistent with a diluted EB scenario than a direct binary, but the centroid shift is only 0.684 sigma with a 0.008 arcsec shift, which does not support a spatially offset contaminating source. The odd-even depth mismatch is 1.614 sigma \u2014 below the 3-sigma threshold for alternating-depth EB signature. Transit shape is not V-shaped (v_shaped=false, shape_param=0.573). Depth at 10407.77 ppm is well below the ~30000 ppm binary floor. One structural concern: transit period 0.942 days = 2.0 x rotation period 0.4707 days (period_matches_rotation_harmonic=true, matched_ratios=[2.0]). If the true binary period is 0.47 days, TLS may have folded at the 2x alias, hiding the odd-even alternation. But odd-even sigma is 1.614 \u2014 not the suppressed alternation signal expected from a true half-period EB. Secondary eclipse significance alone is decisive enough to flag serious concern but not decisive enough to kill without corroborating odd-even or shape evidence.",
+     "evidence_cited": [
+      "diagnostics.secondary.depth_ppm",
+      "diagnostics.secondary.significance_sigma",
+      "diagnostics.odd_even.difference_sigma",
+      "diagnostics.shape.v_shaped",
+      "diagnostics.shape.shape_param",
+      "diagnostics.depth.depth_ppm",
+      "diagnostics.centroid.significance_sigma",
+      "diagnostics.centroid.shift_arcsec",
+      "diagnostics.rotation.period_matches_rotation_harmonic",
+      "diagnostics.rotation.matched_ratios",
+      "diagnostics.rotation.rotation_period_days",
+      "detection.period_days"
+     ],
+     "what_would_change_my_mind": "Odd-even depth mismatch >= 3 sigma would strongly suggest EB at half the detected period. Secondary depth climbing to > 2000 ppm, or secondary significance > 10 sigma with depth ratio > 20%, would push toward fatal. A V-shaped fit (v_shaped=true) combined with the existing secondary would be decisive. Conversely, a robust radial-velocity measurement showing stellar reflex motion, or a secondary depth consistent with thermal emission models for a hot Jupiter at this period, would fully clear the binary suspicion."
+    },
+    {
+     "skeptic": "blend",
+     "verdict": "failed_to_kill",
+     "lethality": "none",
+     "reasoning": "Two independent lines of evidence fail to support a blend false positive. First, centroid: in-transit shift is 0.008062802533844001 arcsec at 0.6845745812364331 sigma \u2014 statistically indistinguishable from zero. No off-target source displacement is detectable. Second, neighbors: 7 neighbors within 63 arcsec, but total_neighbor_flux_fraction is only 0.00689. The brightest neighbor (TIC 100100825, sep=52.47 arcsec, flux_ratio_vs_target=0.00616) is the only one that could conceivably matter. Even a 100% eclipse depth on that neighbor would dilute to at most 0.00616 \u00d7 1,000,000 = 6160 ppm in the target aperture \u2014 well below the observed depth_ppm of 10250.35. No combination of the remaining 6 neighbors (max individual flux_ratio 0.00032) closes this gap. The blend scenario is physically inconsistent with the observed transit depth given the neighbor flux budget. I note the secondary eclipse (significance_sigma=8.277226753353975) is a real concern, but that signal implicates the target star itself as a binary host, not a background contaminant \u2014 that is the binary skeptic's domain. From the blend angle, the candidate survives.",
+     "evidence_cited": [
+      "centroid.shift_arcsec",
+      "centroid.significance_sigma",
+      "neighbors.total_neighbor_flux_fraction",
+      "neighbors.n_neighbors",
+      "neighbors.neighbors[5].flux_ratio_vs_target",
+      "neighbors.neighbors[5].sep_arcsec",
+      "neighbors.neighbors[5].tmag",
+      "diagnostics.depth.depth_ppm",
+      "validation.factors[4].contribution"
+     ],
+     "what_would_change_my_mind": "A centroid shift significant at \u22653 sigma during transit, or discovery of a neighbor within ~21 arcsec (within the TESS PSF core) with flux_ratio_vs_target sufficient to produce the observed 10250 ppm depth through blending. Difference-image centroid analysis from SPOC, if available, showing off-target signal origin would also be decisive."
+    },
+    {
+     "skeptic": "instrument",
+     "verdict": "failed_to_kill",
+     "lethality": "none",
+     "reasoning": "All three instrumental tripwires return clean. frac_in_transit_quality_flagged = 0.0: not a single in-transit cadence carries a TESS quality flag. frac_in_transit_momentum_dump = 0.0: no reaction-wheel desaturation event coincides with any transit window. n_transits_near_gap_or_edge = 1 against n_transits_in_data = 29: only 1 of 29 transits falls near a downlink gap or sector edge, a gap-proximity rate of ~3.4% that does not implicate scattered-light or thermal-settling artifacts. Detection robustness further argues against instrumental origin: distinct_transits = 28, TLS SDE = 29.492, SNR = 547.126. This is not a marginal 2-transit detection hanging on one suspicious event \u2014 it is a 28-event stack with an SDE nearly 4\u00d7 a typical detection threshold and SNR exceeding 500. BLS independently agrees (agrees_with_tls = true, BLS SDE = 15.288). No computed instrumental diagnostic provides a basis to kill or even seriously implicate a systematic origin. The signal's periodicity, depth consistency (depth_err_ppm = 14.07 on depth_ppm = 10407.8), and cadence-flag cleanliness are all inconsistent with common TESS instrumental pathologies.",
+     "evidence_cited": [
+      "systematics.frac_in_transit_quality_flagged",
+      "systematics.frac_in_transit_momentum_dump",
+      "systematics.n_transits_near_gap_or_edge",
+      "systematics.n_transits_in_data",
+      "detection.sde",
+      "detection.snr",
+      "detection.distinct_transits",
+      "bls_check.agrees_with_tls",
+      "diagnostics.depth.depth_err_ppm"
+     ],
+     "what_would_change_my_mind": "frac_in_transit_quality_flagged > 0.10 or frac_in_transit_momentum_dump > 0.10 would implicate cadence-level systematics. n_transits_near_gap_or_edge > 8 (>30% of events) would raise scattered-light concern. If distinct_transits were 2-3 with SDE near 7-9, the thin evidence base alone would warrant serious-concern. A documented TESS column anomaly or CCD saturation trail at this sky position (not currently computed) would also be decisive."
+    },
+    {
+     "skeptic": "stellar",
+     "verdict": "inconclusive",
+     "lethality": "serious-concern",
+     "reasoning": "Candidate period (0.9420 d) is exactly 2\u00d7 the computed stellar rotation period (0.4707 d). rotation.period_matches_rotation_harmonic=true with matched_ratios=[2.0] \u2014 this is the canonical two-spot-group alias: a star bearing two active longitudes ~180\u00b0 apart produces nearly identical dips each half-rotation; a period-finder folds them into a single 'transit' at 2\u00d7P_rot. This is not coincidental agreement; the ratio is precisely 2.0, not approximately. rotation.rotation_power=0.2026 confirms the star carries measurable rotational modulation, providing the photometric amplitude budget to generate a 10,250 ppm dip artifact. shape.shape_param=0.5730 is not flagged V-shaped (v_shaped=false), but 0.57 is far from the flat-bottomed, sharp-ingress profile expected of a genuine transit \u2014 spot-crossing dips are rounded and intermediate, consistent with this value. The secondary at secondary.significance_sigma=8.277 could be the complementary spot hemisphere rotating into view at 0.5 phase, which would be expected under the two-spot alias scenario and reinforces stellar-variability interpretation. Against the stellar hypothesis: SDE=29.492 and SNR=547.1 with n_transits=29 argue for a stable, geometrically repeatable signal \u2014 spot complexes evolve on weeks-to-months timescales and rarely maintain coherence across 29 epochs. odd_even.difference_sigma=1.614 shows the dips are mutually consistent, but does not discriminate between spot pairs and a planet. The case is suggestive but not decisive; the high detection statistics prevent a fatal verdict.",
+     "evidence_cited": [
+      "rotation.rotation_period_days",
+      "rotation.period_matches_rotation_harmonic",
+      "rotation.matched_ratios",
+      "rotation.rotation_power",
+      "shape.shape_param",
+      "shape.v_shaped",
+      "secondary.significance_sigma",
+      "detection.period_days",
+      "detection.sde",
+      "detection.snr",
+      "detection.n_transits",
+      "odd_even.difference_sigma"
+     ],
+     "what_would_change_my_mind": "Autocorrelation or Lomb-Scargle periodogram showing rotation_power decaying over the sector (spots evolve; planets don't) would strongly support stellar variability. Conversely, a flat shape_param (<0.2), stable transit depth across all 29 epochs with no epoch-to-epoch trend correlated with stellar activity indicators, or a centroid shift at secondary phase inconsistent with a spot location would push me toward planet. A rotation_power near zero would remove the modulation budget argument entirely."
+    },
+    {
+     "skeptic": "alias",
+     "verdict": "inconclusive",
+     "lethality": "serious-concern",
+     "reasoning": "Strongest alias flag: detected period 0.9419679 d is exactly 2\u00d7 the stellar rotation period 0.4707 d (rotation.matched_ratios = [2.0], rotation.period_matches_rotation_harmonic = true). A star with two active spot groups rotating at 0.4707 d can produce quasi-periodic dips at the 2\u00d7 harmonic; if BLS/TLS lock onto that harmonic, the resulting 'transit' is stellar rotation contamination masquerading as a 0.94-day planet. The rotation power (0.2026) is non-negligible. Second alias pathway: secondary eclipse is significant at 8.277 sigma with depth 460 ppm. If this is a diluted eclipsing binary, the detected period may be half the true orbital period \u2014 true P \u2248 1.884 d, with both eclipses folded together. Under that scenario the alias is 2\u00d7 inflation of the true period. Mitigating factors prevent a kill verdict: (1) bls_check.agrees_with_tls = true \u2014 two independent algorithms converge on 0.941\u20130.942 d with no period ambiguity; (2) n_transits = 29, distinct_transits = 28 \u2014 a harmonic lock-on would have to be coherent across 28 distinct events, which is physically demanding for spot modulation; (3) odd_even.difference_sigma = 1.6135 \u2014 at 1.6 sigma, the odd-even test does not decisively support a 2\u00d7 true period (would expect >3 sigma for a clean EB); (4) shape.v_shaped = false \u2014 U-shaped morphology disfavors pure spot-crossing or grazing geometry. Rotation harmonic alignment is computed and confirmed; alias cannot be dismissed, but available data prevent a fatal ruling.",
+     "evidence_cited": [
+      "diagnostics.rotation.rotation_period_days",
+      "diagnostics.rotation.period_matches_rotation_harmonic",
+      "diagnostics.rotation.matched_ratios",
+      "diagnostics.rotation.rotation_power",
+      "diagnostics.secondary.significance_sigma",
+      "diagnostics.secondary.depth_ppm",
+      "bls_check.agrees_with_tls",
+      "detection.n_transits",
+      "detection.distinct_transits",
+      "diagnostics.odd_even.difference_sigma",
+      "diagnostics.shape.v_shaped",
+      "validation.factors[rotation_alias].contribution"
+     ],
+     "what_would_change_my_mind": "Phase-folded light curve at 0.4707 d showing clear sinusoidal spot modulation with dip amplitude matching the 10250 ppm transit depth would kill it on rotation grounds. Alternatively, a secondary eclipse at phase 0.5 of exactly half the detected depth (equal-depth eclipses) would confirm a 2\u00d7 period EB and change verdict to killed. Conversely, a ground-based high-resolution light curve showing no secondary and a clean transit ingress/egress at the 0.942-day period \u2014 ruling out spot and EB scenarios \u2014 would clear the alias concern entirely."
+    },
+    {
+     "skeptic": "catalog",
+     "verdict": "killed",
+     "lethality": "fatal",
+     "reasoning": "Candidate class is 'calibration' and crossmatch.verdict is 'known-planet' \u2014 a decisive catalog hit on two independent catalogs. TOI 185.01 matches at period 0.9414525 d (pipeline detected 0.9419679 d, within period_unc); TFOPWG disposition is KP (Known Planet). Confirmed-planet archive independently matches WASP-18 b at period 0.94145223 d, radius 13.89913607 R_earth. Both period_match flags are true. This is WASP-18 b, one of the best-characterized hot Jupiters known. Presenting it as a discovery would be the project's #1 failure mode. This kill is expected and correct \u2014 it is precisely what the calibration run is designed to demonstrate: the pipeline detects WASP-18 b, and the catalog skeptic kills it as already known. EB catalog was unavailable but is irrelevant given the confirmed-planet match. TOI and confirmed catalogs loaded successfully (8035 and 6298 rows respectively), so novelty claim has no catalog-gap excuse.",
+     "evidence_cited": [
+      "crossmatch.verdict",
+      "crossmatch.toi.toi",
+      "crossmatch.toi.period_match",
+      "crossmatch.toi.tfopwg_disposition",
+      "crossmatch.confirmed.pl_name",
+      "crossmatch.confirmed.period_match",
+      "crossmatch.catalog_status.toi",
+      "crossmatch.catalog_status.confirmed",
+      "detection.period_days",
+      "class"
+     ],
+     "what_would_change_my_mind": "Nothing for this candidate. Both TOI and confirmed-planet catalogs loaded fully and matched with period_match=true. The only scenario that could reopen novelty is evidence that the TIC ID was incorrectly assigned and the light curve actually belongs to a different, unmatched star \u2014 but that is a data-ingestion question, not a catalog question."
+    }
+   ],
+   "tally": {
+    "killed": 1,
+    "failed_to_kill": 3,
+    "inconclusive": 2,
+    "errors": 0
+   },
+   "mechanical_status": "killed",
+   "judge": {
+    "decision": "killed",
+    "confidence": "high",
+    "summary_plain_english": "This signal is WASP-18 b, one of the most thoroughly studied hot Jupiters known. The catalog skeptic landed a fatal verdict: the detected period (0.9420 days) matches both the TOI catalog (TOI 185.01, disposition KP \u2014 Known Planet) and the confirmed-planet archive (WASP-18 b, period 0.94145 days) to within measurement uncertainty. This is not a new discovery \u2014 it is a deliberate calibration target, and the pipeline correctly found it. The other five skeptics found nothing fatal on their own terms: no background star blend, no instrumental artifact, clean transit geometry. The binary and stellar skeptics did flag a significant secondary eclipse (8.3 sigma, 460 ppm) and the fact that the transit period is exactly twice the stellar rotation period \u2014 real photometric ambiguities that would demand follow-up in a true blind search. But catalog identity supersedes all of that. The system is working as designed: detect the known planet, then kill it as already known.",
+    "why_it_might_be_real": "WASP-18 b is real \u2014 it is a confirmed hot Jupiter with an extensively characterised orbit, mass, and radius. The pipeline's detection is strong: TLS SDE of 29.5, SNR of 547, 28 distinct transit events, zero quality-flagged in-transit cadences, and independent BLS agreement. The signal is genuine. The question was never whether a planet exists here, but whether it is novel.",
+    "why_we_are_cautious": "Catalog match is decisive; no caution about the kill verdict. For the record, photometric diagnostics alone were ambiguous: FPP of 0.77 driven by an 8.3-sigma secondary eclipse and a transit period exactly 2x the stellar rotation period \u2014 both known false-positive pathways. In a blind search these would demand follow-up.",
+    "recommended_followup": "No follow-up needed. WASP-18 b is fully characterised in the literature. This result should be logged as a successful calibration recovery and used to validate pipeline sensitivity at this period and depth regime."
+   },
+   "judge_agrees_with_mechanical_rule": true,
+   "status": "killed"
+  },
   "provenance": {
    "pipeline": "planet-backlog",
    "pipeline_version": "0.1.0",

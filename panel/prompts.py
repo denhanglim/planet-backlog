@@ -89,12 +89,21 @@ Hard rules:
 
 
 def candidate_digest(cand: dict, include_crossmatch: bool) -> dict:
-    """Deterministic, compact view of a candidate for the agents. No light-curve arrays."""
+    """Deterministic, compact view of a candidate for the agents. No light-curve arrays.
+
+    Physical skeptics (include_crossmatch=False) also get the star's IDENTITY redacted
+    (name/TIC/coords) — only physical parameters remain, so a famous host can't be
+    recognized and vetted from memory instead of from the computed diagnostics.
+    """
+    star = dict(cand["star"])
+    if not include_crossmatch:
+        for k in ("name", "tic_id", "ra", "dec"):
+            star.pop(k, None)
     digest = {
-        "id": cand["id"],
+        "id": cand["id"] if include_crossmatch else "REDACTED",
         "class": cand["class"],
         "sector": cand["sector"],
-        "star": cand["star"],
+        "star": star,
         "detection": {k: v for k, v in cand["detection"].items() if k != "folded_model"},
         "bls_check": (
             {k: cand["bls_check"][k] for k in
