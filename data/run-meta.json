@@ -1,0 +1,39 @@
+{
+ "pipeline": "planet-backlog",
+ "pipeline_version": "0.1.0",
+ "contract_version": "1.0.0",
+ "generated_utc": "2026-06-11T15:44:34.331536+00:00",
+ "environment": {
+  "python": "3.12.13",
+  "platform": "macOS-26.3.1-arm64-arm-64bit"
+ },
+ "search": {
+  "period_min_days": 0.5,
+  "period_max_days": 15.0,
+  "sde_threshold": 9.0,
+  "search_bin_minutes": 10.0
+ },
+ "counts": {
+  "targets_searched": 1,
+  "calibration_targets": 0,
+  "blind_targets": 0,
+  "detections": 1,
+  "panel_survivors": null
+ },
+ "honesty_notes": [
+  "Candidates are NOT confirmed planets; confirmation requires RV follow-up.",
+  "FPP method: see validate.py (heuristic-fpp-v1 (labeled))."
+ ],
+ "target_records": [
+  {
+   "target": "pi Men",
+   "status": "ok",
+   "detections": 1,
+   "tic_id": 261136679,
+   "sector": 1,
+   "period_days": 6.2688480545722784,
+   "sde": 19.472665430655216,
+   "single_transit_events": 0
+  }
+ ]
+}
