@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.lightkurve/
+*.fits
+data/cache/
+web/node_modules/
+web/.next/
+web/out/
+.DS_Store
+*.egg-info/
