@@ -18,6 +18,24 @@ function lcg(seed: number) {
   };
 }
 
+let spriteCache: THREE.Texture | null = null;
+
+/** Soft circular sprite so points render as stars, not squares. */
+function starSprite(): THREE.Texture {
+  if (spriteCache) return spriteCache;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.7)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  spriteCache = new THREE.CanvasTexture(c);
+  return spriteCache;
+}
+
 function StarLayer({
   count,
   radius,
@@ -34,6 +52,7 @@ function StarLayer({
   reduced: boolean;
 }) {
   const ref = useRef<THREE.Points>(null);
+  const sprite = useMemo(() => starSprite(), []);
   const { positions, colors } = useMemo(() => {
     const rand = lcg(seed);
     const pos = new Float32Array(count * 3);
@@ -79,6 +98,8 @@ function StarLayer({
         sizeAttenuation
         vertexColors
         transparent
+        map={sprite}
+        alphaTest={0.01}
         opacity={0.85}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -117,8 +138,8 @@ export function Starfield({ className = "" }: { className?: string }) {
         frameloop={reduced || !visible ? "demand" : "always"}
         gl={{ antialias: false, powerPreference: "high-performance" }}
       >
-        <StarLayer count={4200} radius={28} size={0.045} speed={0.008} seed={7} reduced={reduced} />
-        <StarLayer count={2200} radius={14} size={0.075} speed={0.016} seed={31} reduced={reduced} />
+        <StarLayer count={4200} radius={28} size={0.06} speed={0.008} seed={7} reduced={reduced} />
+        <StarLayer count={2200} radius={14} size={0.11} speed={0.016} seed={31} reduced={reduced} />
       </Canvas>
     </div>
   );

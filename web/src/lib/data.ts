@@ -16,6 +16,17 @@ export function getCandidate(id: string): Candidate | undefined {
   return candidates.find((c) => c.id === id);
 }
 
+/** Human-readable star name: prefer the archival host name over a raw TIC id. */
+export function displayName(c: Candidate): string {
+  if (c.crossmatch.confirmed?.pl_name) {
+    return c.crossmatch.confirmed.pl_name.replace(/\s+[a-h]$/, "");
+  }
+  if (c.crossmatch.toi?.toi) return `TOI ${c.crossmatch.toi.toi.replace(/\.\d+$/, "")}`;
+  const n = c.star.name;
+  if (n && !/^TIC \d+/i.test(n) && !/^\d+$/.test(n)) return n;
+  return `TIC ${c.tic_id}`;
+}
+
 export interface HeadlineStats {
   targetsSearched: number;
   detections: number;

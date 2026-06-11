@@ -4,7 +4,7 @@ import { CountUp } from "@/components/CountUp";
 import { Reveal } from "@/components/Reveal";
 import { Sparkline } from "@/components/Sparkline";
 import { StatusChip } from "@/components/StatusChip";
-import { candidates, headlineStats, sparklineSeries, fmt } from "@/lib/data";
+import { candidates, displayName, headlineStats, sparklineSeries, fmt } from "@/lib/data";
 
 export default function Home() {
   const stats = headlineStats();
@@ -130,7 +130,7 @@ export default function Home() {
                     <StatusChip status={c.panel?.status} compact />
                   </div>
                   <p className="display mt-4 text-xl font-medium text-ink group-hover:text-phosphor transition-colors">
-                    {c.star.name ?? `TIC ${c.tic_id}`}
+                    {displayName(c)}
                   </p>
                   <Sparkline points={sparklineSeries(c)} width={260} height={56} className="mt-4 w-full" />
                   <dl className="readout mt-4 grid grid-cols-3 gap-2 text-[11px] text-ink-dim">
