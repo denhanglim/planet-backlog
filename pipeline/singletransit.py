@@ -99,29 +99,32 @@ def find_single_transits(lcd_flat: LightCurveData,
         if i < 8 or i > len(t) - 9 or nan_runs[lo:hi].any():
             gap_or_edge[i] = True
 
-    events: list[SingleTransitEvent] = []
-    claimed = np.zeros(len(t), dtype=bool)
-
+    # matched-filter SNR for every duration template, THEN greedy-pick the global
+    # best across durations — otherwise a short template claims a long event first
+    # and the reported duration is wrong.
+    filled = np.where(valid, resid, 0.0)
+    snr_by_dur: list[tuple[float, int, np.ndarray]] = []
     for dur_h in config.SINGLE_TRANSIT_DURATIONS_HOURS:
         width = max(int(round(dur_h / 24.0 / bin_days)), 2)
-        template = -np.ones(width)
-        # matched-filter SNR: sum of (negative) residuals over window / (sigma * sqrt(w))
-        filled = np.where(valid, resid, 0.0)
         nvalid = np.convolve(valid.astype(float), np.ones(width), mode="same")
-        score = np.convolve(filled, -template, mode="same")  # positive for dips... sign:
-        # template = -1s; convolve(filled, -template) = sum(filled * 1) -> negative in dips.
+        score = np.convolve(filled, np.ones(width), mode="same")  # sum of resid in window
         snr_series = -score / (sigma * np.sqrt(np.maximum(nvalid, 1)))
         snr_series[nvalid < 0.7 * width] = 0.0
+        snr_by_dur.append((dur_h, width, snr_series))
 
-        while True:
-            i = int(np.nanargmax(snr_series))
-            snr = float(snr_series[i])
-            if snr < snr_threshold:
-                break
-            lo, hi = max(0, i - 2 * width), min(len(t), i + 2 * width)
-            if claimed[lo:hi].any():
-                snr_series[lo:hi] = 0.0
-                continue
+    events: list[SingleTransitEvent] = []
+    claimed = np.zeros(len(t), dtype=bool)
+    while True:
+        best = max(
+            ((d, w, s, int(np.nanargmax(s))) for d, w, s in snr_by_dur),
+            key=lambda x: x[2][x[3]],
+        )
+        dur_h, width, snr_series, i = best
+        snr = float(snr_series[i])
+        if snr < snr_threshold:
+            break
+        lo, hi = max(0, i - 2 * width), min(len(t), i + 2 * width)
+        if not claimed[lo:hi].any():
             window = slice(max(0, i - width // 2), min(len(t), i + width // 2 + 1))
             seg = resid[window]
             seg_valid = np.isfinite(seg)
@@ -138,7 +141,8 @@ def find_single_transits(lcd_flat: LightCurveData,
                 near_gap_or_edge=bool(gap_or_edge[i]),
             ))
             claimed[lo:hi] = True
-            snr_series[lo:hi] = 0.0
+        for _, w2, s2 in snr_by_dur:
+            s2[max(0, i - 2 * w2):min(len(t), i + 2 * w2)] = 0.0
 
     # An event that repeats is periodic business, not a single transit: drop groups
     # of 2+ events with consistent depth at any spacing (the periodic search owns them).
