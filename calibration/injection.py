@@ -9,9 +9,10 @@ Procedure (per real host light curve):
   3. Run the production TLS search blind.
   4. Recovered = SDE >= threshold AND detected period matches injected (incl. harmonics).
 
-Reliability comes from null trials: the same masked light curves, circularly shifted
-in flux (preserves noise structure, destroys coherent signals), searched blind. Any
-SDE >= threshold detection in a null trial is a false alarm.
+Reliability comes from null trials: the same masked light curves with whole 1-day
+blocks of flux shuffled (preserves intra-day noise structure, destroys any coherence
+longer than a day — a plain circular shift would only re-phase periodic signals),
+searched blind. Any SDE >= threshold detection in a null trial is a false alarm.
 
 Scope note (honesty): a few hundred injections, not thousands — bounded by one-session
 compute. The grid and counts are published in calibration.json.
@@ -69,8 +70,14 @@ def prepare_host(host: str) -> tuple[LightCurveData, dict] | None:
     if det is None or det.sde is None or det.sde < config.DETECTION_SDE_THRESHOLD:
         # no in-data planet to mask; usable as-is (quiet host)
         return flat, star
-    mask = transit_mask(flat.time, det.period_days, det.t0_btjd,
-                        det.duration_hours / 24.0, pad=2.0)
+    dur_days = det.duration_hours / 24.0
+    # mask the transit AND the secondary-eclipse window (phase 0.5) — hot Jupiters
+    # have detectable secondaries that would otherwise poison the null trials
+    mask = (
+        transit_mask(flat.time, det.period_days, det.t0_btjd, dur_days, pad=2.0)
+        | transit_mask(flat.time, det.period_days, det.t0_btjd + det.period_days / 2.0,
+                       dur_days, pad=2.0)
+    )
     clean = LightCurveData(
         tic_id=flat.tic_id, sector=flat.sector,
         time=flat.time[~mask], flux=flat.flux[~mask],
@@ -110,7 +117,7 @@ def run(hosts: list[str] | None = None, n_injections_per_host: int = 24,
                 flux=inject_transit(clean.time, clean.flux, period, t0, depth_ppm / 1e6, dur),
                 flux_err=clean.flux_err, quality=clean.quality, meta=clean.meta,
             )
-            det = run_tls(injected, star=star)
+            det = run_tls(injected, star=star, fast=True)
             recovered = bool(
                 det is not None and det.sde is not None
                 and det.sde >= config.DETECTION_SDE_THRESHOLD
@@ -129,22 +136,40 @@ def run(hosts: list[str] | None = None, n_injections_per_host: int = 24,
                      i, period, depth_ppm, "RECOVERED" if recovered else "missed")
 
         for k in range(n_null_per_host):
-            shift = int(rng.integers(len(clean.flux) // 4, 3 * len(clean.flux) // 4))
             null = LightCurveData(
                 tic_id=clean.tic_id, sector=clean.sector, time=clean.time,
-                flux=np.roll(clean.flux, shift), flux_err=clean.flux_err,
+                flux=_block_shuffle(clean.time, clean.flux, rng),
+                flux_err=clean.flux_err,
                 quality=clean.quality, meta=clean.meta,
             )
-            det = run_tls(null, star=star)
+            det = run_tls(null, star=star, fast=True)
             false_alarm = bool(det is not None and det.sde is not None
                                and det.sde >= config.DETECTION_SDE_THRESHOLD)
             null_trials.append({
-                "host": host, "shift": shift, "false_alarm": false_alarm,
+                "host": host, "trial": k, "method": "1-day block shuffle",
+                "false_alarm": false_alarm,
                 "sde": round(det.sde, 2) if det and det.sde is not None else None,
             })
             log.info("  null %d: %s", k, "FALSE ALARM" if false_alarm else "clean")
 
     return _summarize(trials, null_trials)
+
+
+def _block_shuffle(time: np.ndarray, flux: np.ndarray, rng: np.random.Generator,
+                   block_days: float = 1.0) -> np.ndarray:
+    """Shuffle whole ~1-day blocks of flux. Unlike a circular shift (which merely
+    re-phases periodic signals on uniform sampling), this destroys any coherence
+    longer than one block while preserving intra-day noise structure."""
+    block_idx = ((time - time[0]) / block_days).astype(int)
+    out = np.empty_like(flux)
+    blocks = np.unique(block_idx)
+    order = rng.permutation(len(blocks))
+    pos = 0
+    for b in order:
+        seg = flux[block_idx == blocks[b]]
+        out[pos:pos + len(seg)] = seg
+        pos += len(seg)
+    return out
 
 
 def _summarize(trials: list[dict], null_trials: list[dict]) -> dict:

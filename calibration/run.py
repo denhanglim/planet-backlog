@@ -52,8 +52,9 @@ def main(argv=None) -> int:
             "(hundreds total, not thousands; single-session compute budget).",
             "Search runs on 10-min binned flux; depths near the per-bin noise floor at the "
             "shortest periods are the hardest cells.",
-            "Null trials use circular flux shifts: noise autocorrelation preserved, coherent "
-            "signals destroyed.",
+            "Null trials use 1-day block shuffles of the flux: intra-day noise structure "
+            "preserved, longer coherent signals destroyed. Known-planet transits AND "
+            "secondary-eclipse windows are masked before injection/null trials.",
         ],
     })
     write_json(args.out, payload)

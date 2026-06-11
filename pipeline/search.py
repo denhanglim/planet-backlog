@@ -68,18 +68,28 @@ def stellar_params(tic_id: int) -> dict:
 
 def run_tls(lcd: LightCurveData, star: dict | None = None,
             period_min: float = config.PERIOD_MIN_DAYS,
-            period_max: float = config.PERIOD_MAX_DAYS) -> Detection | None:
-    """Transit Least Squares search on binned flux. Returns the top detection."""
+            period_max: float = config.PERIOD_MAX_DAYS,
+            fast: bool = False) -> Detection | None:
+    """Transit Least Squares search on binned flux. Returns the top detection.
+
+    fast=True coarsens the period/duration grids (~2-3x speedup) — used by the
+    injection-recovery loop, where hundreds of searches must fit one session.
+    The calibration report states which mode produced each number.
+    """
     from transitleastsquares import transitleastsquares
 
-    t, f, _ = bin_lightcurve(lcd.time, lcd.flux, lcd.flux_err, config.SEARCH_BIN_MINUTES)
+    bin_minutes = config.SEARCH_BIN_MINUTES * (1.5 if fast else 1.0)
+    t, f, _ = bin_lightcurve(lcd.time, lcd.flux, lcd.flux_err, bin_minutes)
     if len(t) < 200:
         log.info("TIC %s: too few points after binning (%d)", lcd.tic_id, len(t))
         return None
     star = star or stellar_params(lcd.tic_id)
     period_max = min(period_max, (t[-1] - t[0]) / 2.0)  # need >= 2 transits
 
+    import os
+
     model = transitleastsquares(t, f)
+    speed = {"oversampling_factor": 2, "duration_grid_step": 1.15} if fast else {}
     try:
         r = model.power(
             period_min=period_min,
@@ -92,7 +102,8 @@ def run_tls(lcd: LightCurveData, star: dict | None = None,
             R_star_min=0.5 * star["radius_rsun"],
             R_star_max=2.0 * star["radius_rsun"],
             show_progress_bar=False,
-            use_threads=4,
+            use_threads=max(os.cpu_count() - 2, 2),
+            **speed,
         )
     except Exception as exc:
         log.warning("TLS failed for TIC %s: %s", lcd.tic_id, exc)

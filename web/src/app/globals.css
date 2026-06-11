@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/* ── PLANET BACKLOG design tokens ─────────────────────────────────────────
+   Observatory-phosphor on near-black. One spectral accent (phosphor) for
+   signal/survival, amber for kills/warnings. Hairline borders, generous
+   negative space, mono for every number. */
+
+:root {
+  --void: #050807;            /* page ground */
+  --void-2: #0a0f0d;          /* raised panels */
+  --void-3: #101714;          /* hover / inset */
+  --ink: #e8ece9;             /* primary text — 15.6:1 on void */
+  --ink-dim: #a8b3ac;         /* secondary text — 7.5:1 */
+  --ink-faint: #6d7873;       /* tertiary — 4.6:1, AA for large/mono only */
+  --phosphor: #5ef2c8;        /* signal / survived / interactive */
+  --phosphor-dim: #2c8a72;
+  --amber: #ffb24d;           /* kills / cautions */
+  --blood: #ff6b5e;           /* fatal */
+  --hairline: rgba(232, 236, 233, 0.1);
+  --hairline-strong: rgba(232, 236, 233, 0.22);
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-void-2: var(--void-2);
+  --color-void-3: var(--void-3);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-phosphor: var(--phosphor);
+  --color-phosphor-dim: var(--phosphor-dim);
+  --color-amber: var(--amber);
+  --color-blood: var(--blood);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-plex-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--void);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--phosphor);
+  color: var(--void);
+}
+
+:focus-visible {
+  outline: 2px solid var(--phosphor);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* faint phosphor scanline texture on panels */
+.panel {
+  background: var(--void-2);
+  border: 1px solid var(--hairline);
+}
+
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(94, 242, 200, 0.02) 0px,
+    rgba(94, 242, 200, 0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* numeric readouts */
+.readout {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* big display headlines */
+.display {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* status colors */
+.status-survived { color: var(--phosphor); }
+.status-killed { color: var(--amber); }
+.status-flagged-for-review { color: var(--ink-dim); }
+
+/* hairline rules between sections */
+.rule {
+  border-top: 1px solid var(--hairline);
+}
+
+/* keyboard-visible skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--void-2);
+  color: var(--phosphor);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--phosphor);
+}
