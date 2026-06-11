@@ -22,10 +22,10 @@ invisible to them by construction. This system supplies that attention at scale.
 | What | Result |
 |---|---|
 | Known-planet recovery (calibration gate) | **8/8 (100%)** — WASP-18 b, WASP-121 b, WASP-126 b, WASP-100 b, WASP-62 b, pi Men c, LHS 3844 b, HD 219666 b all re-found blind; pi Men c at 221 ppm is the depth floor demonstrated |
-| Injection-recovery completeness | **81%** overall (192 trapezoid injections into real light curves; 100% at ≥3000 ppm, ~22–43% at 300 ppm — the honest small-planet limit at 10-min binning) |
-| Reliability | **96%** (recovered injections / all SDE ≥ 9 detections incl. 2 false alarms in 32 block-shuffle null trials and 5 wrong-period recoveries) |
-| Blind backlog batch | 40 sector-1 SPOC targets not in any TOI/confirmed/EB catalog: **37 honest no-detections**, 1 periodic candidate, 3 single-transit events |
-| Tribunal verdicts | see `data/candidates.json` — every skeptic's full reasoning is preserved per candidate |
+| Injection-recovery completeness | **73%** overall — 192 trapezoid injections into RAW flux, searched through the full production detrend+search chain (≥93% at ≥3000 ppm, ~20–40% at 300 ppm: the honest small-planet limit at 10-min binning). An earlier 81% figure that bypassed detrending was caught in adversarial review and corrected. |
+| Reliability | **95%** (recovered injections / all SDE ≥ 9 detections, incl. block-shuffle null-trial false alarms and wrong-period recoveries — full accounting in `data/calibration.json`) |
+| Blind backlog batch | 40 sector-1 SPOC targets not in any TOI/confirmed/EB catalog: **37 honest no-detections**, 1 periodic candidate, 3 single-transit events (period lower bounds 18.1–22.2 d, event-to-edge) |
+| Tribunal verdicts | all 8 calibration planets correctly killed by the catalog skeptic ("not novel" — dedup proof); all 4 novel candidates **flagged for human review** with low-confidence judge syntheses and concrete follow-up plans; **0 survivors** — the honest outcome for single-sector evidence. Notably, the blend skeptic surfaced a real 7.3σ in-transit centroid shift on the periodic candidate. Every skeptic's full reasoning is in `data/candidates.json`. |
 
 Caveats, stated plainly:
 
@@ -41,6 +41,17 @@ Caveats, stated plainly:
 - The Villanova TESS-EB catalog endpoint was unreachable during this run; EB dedup relies
   on TFOPWG FP dispositions + the confirmed/TOI lists. Recorded in every dossier's
   `catalog_status`.
+- This repo was built and adversarially reviewed in a single session by Claude (Fable 5)
+  on real MAST data; the review found and fixed two genuine science defects (injection
+  path bypassing detrending; single-transit period bound overstated) before publication.
+
+## The experience
+
+![Home — mission + live counters from real pipeline output](docs/screenshots/home.webp)
+![The Ledger — filterable candidate gallery with real folded-curve sparklines](docs/screenshots/ledger.webp)
+![Candidate dossier — interactive folded light curve with the TLS model overlay (pi Men c)](docs/screenshots/dossier.webp)
+![The Tribunal — six skeptics, verdict stamps, evidence chips, full reasoning](docs/screenshots/tribunal.webp)
+![Trust — completeness matrix, null trials, reliability](docs/screenshots/trust.webp)
 
 ## Architecture
 
