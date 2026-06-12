@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planet Backlog — web
 
-## Getting Started
+The static web experience for [Planet Backlog](../README.md). A Next.js 16 static
+export that renders **entirely** from the pipeline's JSON contract — no number on the
+site exists outside `../data/*.json`.
 
-First, run the development server:
+## How it gets its data
+
+`scripts/sync-data.mjs` copies the pipeline contract (`../data/candidates.json`,
+`calibration.json`, `run-meta.json`) into `src/data/` before every `dev` and `build`
+(via the `predev` / `prebuild` npm hooks). It **fails loudly** if any file is missing —
+the site must never render fabricated data, so the build aborts rather than ship a
+placeholder.
+
+Generate the contract first (from the repo root):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+.venv/bin/python -m calibration.run
+.venv/bin/python -m pipeline.run --calibration --blind
+.venv/bin/python -m panel.run          # needs the Claude Code CLI authenticated
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Develop
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev      # http://localhost:3000 — re-syncs data on start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build
 
-## Learn More
+```bash
+npm run build    # static export in out/
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Home** — mission + live counters from the run metadata.
+- **The Ledger** — filterable candidate gallery with folded-curve sparklines.
+- **Candidate dossier** — interactive folded light curve with the TLS model overlay,
+  full diagnostics, and a JSON export for independent verification.
+- **The Tribunal** — the six skeptics, their verdict stamps, evidence chips, and full
+  reasoning.
+- **Trust** — completeness matrix, null trials, and reliability from the calibration gate.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Stack
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router, static export) · React 19 · TypeScript · Tailwind v4 ·
+three / @react-three/fiber · d3 · framer-motion · lenis.

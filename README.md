@@ -75,7 +75,7 @@ data/          The contract: candidates.json, calibration.json, run-meta.json.
 web/           Next.js 16 static export. Renders ENTIRELY from data/*.json — no number
                on the site exists outside the pipeline output.
 tests/         pytest: synthetic recovery, EB-tell diagnostics, single-transit hunter,
-               contract integrity (15 tests).
+               contract integrity (16 tests).
 ```
 
 **The prime directive: the LLM never invents a number.** Every quantity is computed in
@@ -88,8 +88,7 @@ never papered over.
 ```bash
 # environment (Python 3.12)
 python3.12 -m venv .venv
-.venv/bin/pip install numpy scipy matplotlib astropy lightkurve astroquery \
-                      transitleastsquares pytest pandas jsonschema requests setuptools
+.venv/bin/pip install -r requirements.txt
 
 # 1. calibration gate (downloads real TESS data from MAST; ~1 h)
 .venv/bin/python -m calibration.run
@@ -113,3 +112,13 @@ Every dossier records TIC ID, sector, data product, pipeline + contract versions
 generation time, stellar-parameter source, every diagnostic, every skeptic verdict, and
 the folded light-curve series — exportable as JSON from each dossier page for
 independent verification or refutation.
+
+## License
+
+[MIT](LICENSE) © 2026 Dennis Limbu.
+
+Built on public data and open science tooling: TESS light curves via
+[MAST](https://archive.stsci.edu/) (`lightkurve` / `astroquery`), period search with
+[`transitleastsquares`](https://github.com/hippke/tls), and catalog crossmatch against
+the NASA Exoplanet Archive / TOI lists. This project outputs **vetted candidates for
+community follow-up**, never confirmed planets.
